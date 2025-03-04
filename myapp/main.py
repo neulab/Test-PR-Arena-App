@@ -1,20 +1,17 @@
 # myapp/main.py
-from utils import format_message
+import os
+from flask import Flask, render_template
+from myapp.utils import format_message
 
-def greet(name):
-    """
-    Creates a greeting message for the given name.
-    
-    Args:
-        name (str): The name to greet
-        
-    Returns:
-        str: A formatted greeting message
-    """
-    message = f"Hello, {name}!"
-    return format_message(message)
+app = Flask(__name__)
 
-if __name__ == "__main__":
-    user_name = input("Please enter your name: ")
-    greeting = greet(user_name)
-    print(greeting)
+@app.route('/')
+def index():
+    name = 'User'
+    timezone = os.getenv('APP_TIMEZONE', 'UTC')
+    greeting = format_message(f"Hello, {name}!", timezone)
+    return render_template('index.html', greeting=greeting)
+
+if __name__ == '__main__':
+    app.run(port=5000)
+
