@@ -65,7 +65,7 @@ jobs:
           pip install firebase-admin
 
       - name: Attempt to resolve issues and send the resolver output to Firebase
-        env: |
+        env:
           LLM_MODELS: ${{ inputs.llm_models_secret }}
         run: |
           cd /tmp && python -m openhands_resolver.resolve_issues \
