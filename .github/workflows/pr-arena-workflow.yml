@@ -10,7 +10,7 @@ on:
         required: true
         type: string
       llm_models_secret:
-        required: false
+        required: true
         type: string
         default: ''
       firebase_secret:
@@ -67,6 +67,7 @@ jobs:
       - name: Attempt to resolve issues and send the resolver output to Firebase
         env:
           LLM_MODELS: ${{ inputs.llm_models_secret }}
+          FIREBASE_CONFIG_SECRET: ${{ inputs.firebase_secret }}
         run: |
           cd /tmp && python -m openhands_resolver.resolve_issues \
             --repo ${{ github.repository }} \
@@ -74,7 +75,7 @@ jobs:
             --token ${{ inputs.pat_token }} \
             --llm-api-key ${{ inputs.api_key }} \
             --llm-base-url ${{ inputs.api_url }} \
-            --firebase-config ${{ inputs.firebase_secret }}
+            --firebase-config "$FIREBASE_CONFIG_SECRET"
 
       - name: Post webpage link to GitHub issue comment
         uses: actions/github-script@v7
