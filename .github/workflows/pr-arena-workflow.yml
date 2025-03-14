@@ -72,9 +72,9 @@ jobs:
             --repo ${{ github.repository }} \
             --issue-numbers ${{ env.ISSUE_NUMBER }} \
             --token ${{ inputs.pat_token }} \
-            --token-api ${{ inputs.api_key }} \
-            --token-url ${{ inputs.base_url }} \
-            --token-config '${{ inputs.firebase_secret }}'
+            --key ${{ inputs.api_key }} \
+            --base-url ${{ inputs.base_url }} \
+            --credential '${{ inputs.firebase_secret }}'
 
       - name: Post webpage link to GitHub issue comment
         uses: actions/github-script@v7
@@ -100,7 +100,7 @@ jobs:
             --issue-number ${{ env.ISSUE_NUMBER }} \
             --token ${{ inputs.pat_token }} \
             --username ${{ inputs.pat_username }} \
-            --token-config '${{ inputs.firebase_secret }}'
+            --credential '${{ inputs.firebase_secret }}'
 
       - name: Create Pull Request for the selected branch
         run: |
