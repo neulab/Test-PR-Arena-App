@@ -9,14 +9,14 @@ on:
       api_key:
         required: true
         type: string
-      llm_models_secret:
+      llm_models:
         required: true
         type: string
         default: ''
       firebase_secret:
         required: true
         type: string
-      api_url:
+      base_url:
         required: true
         type: string
       pat_token:
@@ -66,16 +66,15 @@ jobs:
 
       - name: Attempt to resolve issues and send the resolver output to Firebase
         env:
-          LLM_MODELS: ${{ inputs.llm_models_secret }}
-          FIREBASE_CONFIG_SECRET: ${{ inputs.firebase_secret }}
+          LLM_MODELS: ${{ inputs.llm_models }}
         run: |
           cd /tmp && python -m openhands_resolver.resolve_issues \
             --repo ${{ github.repository }} \
             --issue-numbers ${{ env.ISSUE_NUMBER }} \
             --token ${{ inputs.pat_token }} \
-            --llm-api-key ${{ inputs.api_key }} \
-            --llm-base-url ${{ inputs.api_url }} \
-            --firebase-config "$FIREBASE_CONFIG_SECRET"
+            --token-api ${{ inputs.api_key }} \
+            --token-url ${{ inputs.base_url }} \
+            --token-config '${{ inputs.firebase_secret }}'
 
       - name: Post webpage link to GitHub issue comment
         uses: actions/github-script@v7
@@ -101,7 +100,7 @@ jobs:
             --issue-number ${{ env.ISSUE_NUMBER }} \
             --token ${{ inputs.pat_token }} \
             --username ${{ inputs.pat_username }} \
-            --firebase-config ${{ inputs.firebase_secret }}
+            --token-config '${{ inputs.firebase_secret }}'
 
       - name: Create Pull Request for the selected branch
         run: |
