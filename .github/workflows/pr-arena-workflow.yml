@@ -43,13 +43,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Set issue number
-        run: echo "ISSUE_NUMBER=${{ inputs.issue_number }}" >> $GITHUB_ENV
+      # Mask sensitive inputs and set as environment variables
+      - name: Mask sensitive values
+        run: |
+          # First, mask the sensitive values
+          echo "::add-mask::${{ inputs.api_key }}"
+          echo "::add-mask::${{ inputs.pat_token }}"
+          echo "::add-mask::${{ inputs.firebase_secret }}"
+          echo "::add-mask::${{ inputs.base_url }}"
+          echo "::add-mask::${{ inputs.llm_models }}"
+          
+          # Then, set them as environment variables
+          echo "ISSUE_NUMBER=${{ inputs.issue_number }}" >> $GITHUB_ENV
+          echo "API_KEY=${{ inputs.api_key }}" >> $GITHUB_ENV
+          echo "PAT_TOKEN=${{ inputs.pat_token }}" >> $GITHUB_ENV
+          echo "FIREBASE_SECRET=${{ inputs.firebase_secret }}" >> $GITHUB_ENV
+          echo "BASE_URL=${{ inputs.base_url }}" >> $GITHUB_ENV
+          echo "LLM_MODELS=${{ inputs.llm_models }}" >> $GITHUB_ENV
+          echo "PAT_USERNAME=${{ inputs.pat_username }}" >> $GITHUB_ENV
 
       - name: Comment on issue with start message
         uses: actions/github-script@v7
         with:
-          github-token: ${{ inputs.pat_token }}
+          github-token: ${{ env.PAT_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: ${{ env.ISSUE_NUMBER }},
@@ -65,21 +81,19 @@ jobs:
           pip install firebase-admin
 
       - name: Attempt to resolve issues and send the resolver output to Firebase
-        env:
-          LLM_MODELS: ${{ inputs.llm_models }}
         run: |
           cd /tmp && python -m openhands_resolver.resolve_issues \
             --repo ${{ github.repository }} \
             --issue-numbers ${{ env.ISSUE_NUMBER }} \
-            --token ${{ inputs.pat_token }} \
-            --key ${{ inputs.api_key }} \
-            --base-url ${{ inputs.base_url }} \
-            --credential '${{ inputs.firebase_secret }}'
+            --token ${{ env.PAT_TOKEN }} \
+            --key ${{ env.API_KEY }} \
+            --base-url ${{ env.BASE_URL }} \
+            --credential '${{ env.FIREBASE_SECRET }}'
 
       - name: Post webpage link to GitHub issue comment
         uses: actions/github-script@v7
         with:
-          github-token: ${{ inputs.pat_token }}
+          github-token: ${{ env.PAT_TOKEN }}
           script: |
             const issueNumber = ${{ env.ISSUE_NUMBER }};
             const repo = context.repo.repo
@@ -98,9 +112,9 @@ jobs:
           cd /tmp && python -m openhands_resolver.listen_for_decision \
             --repo ${{ github.repository }} \
             --issue-number ${{ env.ISSUE_NUMBER }} \
-            --token ${{ inputs.pat_token }} \
-            --username ${{ inputs.pat_username }} \
-            --credential '${{ inputs.firebase_secret }}'
+            --token ${{ env.PAT_TOKEN }} \
+            --username ${{ env.PAT_USERNAME }} \
+            --credential '${{ env.FIREBASE_SECRET }}'
 
       - name: Create Pull Request for the selected branch
         run: |
@@ -108,13 +122,13 @@ jobs:
             --issue-number ${{ env.ISSUE_NUMBER }} \
             --model-number ${{ env.SELECTED }} \
             --pr-type draft \
-            --token ${{ inputs.pat_token }} | tee pr_result${{ env.SELECTED }}.txt && \
+            --token ${{ env.PAT_TOKEN }} | tee pr_result${{ env.SELECTED }}.txt && \
             grep "draft created" pr_result${{ env.SELECTED }}.txt | sed 's/.*\///g' > pr_number.txt
 
       - name: Comment on issue
         uses: actions/github-script@v7
         with:
-          github-token: ${{ inputs.pat_token }}
+          github-token: ${{ env.PAT_TOKEN }}
           script: |
             const fs = require('fs');
             const issueNumber = ${{ env.ISSUE_NUMBER }};
