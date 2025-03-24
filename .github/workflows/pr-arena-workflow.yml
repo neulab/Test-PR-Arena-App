@@ -90,7 +90,8 @@ jobs:
             --repo ${{ github.repository }} \
             --issue-number ${{ inputs.issue_number }} \
             --token ${{ inputs.pat_token }} \
-            --username ${{ inputs.pat_username }}
+            --username ${{ inputs.pat_username }} \
+            --uuid ${{ env.UUID }}
 
       - name: Create Pull Request for the selected branch
         run: |
