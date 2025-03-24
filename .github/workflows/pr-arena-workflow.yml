@@ -67,6 +67,32 @@ jobs:
             --base-url ${{ inputs.base_url }} \
             --llm-models '${{ env.LLM_MODELS }}'
 
+      - name: Check for failure
+        id: check_failure
+        run: |
+          if [ "${{ env.FAILED }}" == "TRUE" ]; then
+            echo "failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "failed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on issue with failure message
+        if: steps.check_failure.outputs.failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ inputs.pat_token }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ inputs.issue_number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ PR-Arena has encountered an error and cannot continue. The automated fix attempt has failed due to the agent error. Please remove the 'pr-arena' label and add it back to retry.`
+            });
+
+      - name: Exit workflow if failed
+        if: steps.check_failure.outputs.failed == 'true'
+        run: exit 1
+
       - name: Post webpage link to GitHub issue comment
         uses: actions/github-script@v7
         with:
@@ -75,7 +101,7 @@ jobs:
             const issueNumber = ${{ inputs.issue_number }};
             const repo = context.repo.repo
             const owner = context.repo.owner
-            const firebaseWebpageURL = `https://pr-arena.web.app/${owner}-${repo}-${issueNumber}`;
+            const firebaseWebpageURL = `https://pr-arena.web.app/${{ env.UUID }}`;
 
             github.rest.issues.createComment({
                 owner: context.repo.owner,
