@@ -9,8 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // In a real application, you might make an API call to the Python backend
             // For this example, we'll simulate it
             const name = nameInput.value;
-            const currentTime = new Date().toLocaleString();
+            const options = { timeZone: 'UTC', timeZoneName: 'short' };
+            const currentTime = new Intl.DateTimeFormat('en-US', options).format(new Date());
             greetingDisplay.textContent = `Hello, ${name}! (at ${currentTime})`;
+        } else {
+            greetingDisplay.textContent = 'Please enter your name first.';
+        }
+    }
+});
+
         } else {
             greetingDisplay.textContent = 'Please enter your name first.';
         }
@@ -24,3 +31,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('JavaScript initialized and ready to greet users!');
 });
+
