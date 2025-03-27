@@ -1,5 +1,5 @@
 # myapp/main.py
-from utils import format_message
+from myapp.utils import format_message
 
 def greet(name):
     """
@@ -18,3 +18,4 @@ if __name__ == "__main__":
     user_name = input("Please enter your name: ")
     greeting = greet(user_name)
     print(greeting)
+
