@@ -28,7 +28,7 @@ permissions:
 jobs:
   auto-fix:
     runs-on: ubuntu-latest
-    timeout-minutes: 40  # Set a 40-minute timeout for the entire job
+    timeout-minutes: 15  # Set a 40-minute timeout for the entire job
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -125,7 +125,7 @@ jobs:
               issue_number: ${{ inputs.issue_number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `⏱️ PR-Arena workflow has been cancelled due to exceeding the 40-minute timeout limit. This may be due to a complex task or an agent error. Please remove the 'pr-arena' label and add it back to retry.`
+              body: `⏱️ PR-Arena workflow has been cancelled due to exceeding the 15-minute timeout limit. This may be due to a complex task or an agent error. Please remove the 'pr-arena' label and add it back to retry.`
             });
       
       - name: Wait for user's decision and save it to the GitHub environment
